@@ -34,10 +34,7 @@ import {
   CheckCircle2,
   AlertCircle
 } from 'lucide-react';
-import { GoogleGenAI } from "@google/genai";
 import { Waypoint, Task, INITIAL_PROMPT } from './types.ts';
-
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
 // Initial 10 waypoints based on Image 4 style
 const INITIAL_WAYPOINTS: Waypoint[] = [
