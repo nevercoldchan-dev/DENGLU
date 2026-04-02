@@ -95,6 +95,7 @@ export default function App() {
   const [isInputFocused, setIsInputFocused] = useState(false);
   const [showActionShowcase, setShowActionShowcase] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const activeItemRef = useRef<HTMLDivElement>(null);
 
   // Trigger highlight when selectedPointId changes
   useEffect(() => {
@@ -224,6 +225,14 @@ export default function App() {
     }
   }, [isSimulating]);
 
+  const activeIndex = Math.floor((simProgress / 100) * sequence.length);
+
+  useEffect(() => {
+    if (isSimulating && activeItemRef.current) {
+      activeItemRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+  }, [activeIndex, isSimulating]);
+
   const selectedPoint = waypoints.find(p => p.id === selectedPointId);
 
   if (currentPage === 'config') {
@@ -245,7 +254,7 @@ export default function App() {
           >
             <div>
               <h1 className="text-4xl font-extrabold text-text-primary tracking-tight">
-                IRON <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">机器人应用编排</span>
+                <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">Robot应用编排</span>
               </h1>
               <p className="text-text-secondary text-sm font-medium mt-2">定义机器人的核心灵魂与应用边界，构建下一代智能交互体验</p>
             </div>
@@ -267,8 +276,8 @@ export default function App() {
               </div>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <label className="text-xs font-bold text-text-secondary uppercase tracking-widest ml-1">应用名称</label>
+                <div className="flex flex-col">
+                  <label className="block text-xs font-bold text-text-secondary uppercase tracking-widest ml-1 mb-3">应用名称</label>
                   <input 
                     type="text" 
                     value={appInfo.name}
@@ -277,8 +286,8 @@ export default function App() {
                     placeholder="例如：大英博物馆智能向导"
                   />
                 </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-bold text-text-secondary uppercase tracking-widest ml-1">应用描述</label>
+                <div className="flex flex-col">
+                  <label className="block text-xs font-bold text-text-secondary uppercase tracking-widest ml-1 mb-3">应用描述</label>
                   <input 
                     type="text" 
                     value={appInfo.description}
@@ -1036,48 +1045,50 @@ export default function App() {
         </div>
 
         {!collapsedModules.preview && (
-          <div className="flex-1 p-6 overflow-y-auto space-y-6 custom-scrollbar bg-bg-light/30">
-            {/* Simulation Viewport */}
-            <div className="aspect-video bg-slate-100 rounded-[32px] border border-border-light relative overflow-hidden flex items-center justify-center group shadow-soft">
-               <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1554907984-15263bfd63bd?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-center opacity-60 group-hover:opacity-80 transition-all duration-700" />
-               <div className="absolute inset-0 bg-gradient-to-t from-text-primary/60 via-transparent to-transparent" />
-               
-               {isSimulating ? (
-                 <div className="relative z-10 flex flex-col items-center gap-4">
-                   <div className="w-20 h-20 rounded-full bg-primary/20 backdrop-blur-md flex items-center justify-center border border-white/30 animate-pulse shadow-glow">
-                     <Cpu size={40} className="text-white" />
+          <div className="flex-1 flex flex-col overflow-hidden bg-bg-light/30">
+            {/* Simulation Viewport - Fixed at top */}
+            <div className="p-6 pb-3 shrink-0">
+              <div className="aspect-video bg-slate-100 rounded-[32px] border border-border-light relative overflow-hidden flex items-center justify-center group shadow-soft">
+                 <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1554907984-15263bfd63bd?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-center opacity-60 group-hover:opacity-80 transition-all duration-700" />
+                 <div className="absolute inset-0 bg-gradient-to-t from-text-primary/60 via-transparent to-transparent" />
+                 
+                 {isSimulating ? (
+                   <div className="relative z-10 flex flex-col items-center gap-4">
+                     <div className="w-20 h-20 rounded-full bg-primary/20 backdrop-blur-md flex items-center justify-center border border-white/30 animate-pulse shadow-glow">
+                       <Cpu size={40} className="text-white" />
+                     </div>
+                     <div className="px-5 py-2 bg-white/10 backdrop-blur-md rounded-full border border-white/20 text-white text-xs font-bold tracking-widest uppercase">
+                       正在执行仿真巡检...
+                     </div>
                    </div>
-                   <div className="px-5 py-2 bg-white/10 backdrop-blur-md rounded-full border border-white/20 text-white text-xs font-bold tracking-widest uppercase">
-                     正在执行仿真巡检...
-                   </div>
-                 </div>
-               ) : (
-                 <button 
-                   onClick={startSimulation}
-                   className="relative z-10 w-20 h-20 bg-white rounded-full shadow-button flex items-center justify-center text-primary hover:scale-110 active:scale-95 transition-all group/btn"
-                 >
-                   <Play size={32} fill="currentColor" className="ml-1 group-hover/btn:scale-110 transition-transform" />
-                 </button>
-               )}
+                 ) : (
+                   <button 
+                     onClick={startSimulation}
+                     className="relative z-10 w-20 h-20 bg-white rounded-full shadow-button flex items-center justify-center text-primary hover:scale-110 active:scale-95 transition-all group/btn"
+                   >
+                     <Play size={32} fill="currentColor" className="ml-1 group-hover/btn:scale-110 transition-transform" />
+                   </button>
+                 )}
 
-               <div className="absolute bottom-6 left-6 right-6 z-10">
-                 <div className="flex items-center justify-between text-[10px] text-white/80 font-bold mb-2 uppercase tracking-wider">
-                   <span>博物馆实景仿真</span>
-                   <span>{isSimulating ? `${Math.round(simProgress)}%` : '待机中'}</span>
+                 <div className="absolute bottom-6 left-6 right-6 z-10">
+                   <div className="flex items-center justify-between text-[10px] text-white/80 font-bold mb-2 uppercase tracking-wider">
+                     <span>博物馆实景仿真</span>
+                     <span>{isSimulating ? `${Math.round(simProgress)}%` : '待机中'}</span>
+                   </div>
+                   <div className="h-2 bg-white/20 rounded-full overflow-hidden backdrop-blur-sm border border-white/10">
+                     <motion.div 
+                       className="h-full bg-gradient-to-r from-primary to-secondary"
+                       initial={{ width: 0 }}
+                       animate={{ width: `${simProgress}%` }}
+                     />
+                   </div>
                  </div>
-                 <div className="h-2 bg-white/20 rounded-full overflow-hidden backdrop-blur-sm border border-white/10">
-                   <motion.div 
-                     className="h-full bg-gradient-to-r from-primary to-secondary"
-                     initial={{ width: 0 }}
-                     animate={{ width: `${simProgress}%` }}
-                   />
-                 </div>
-               </div>
+              </div>
             </div>
 
-            {/* Task Execution List */}
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
+            {/* Task Execution List - Scrollable */}
+            <div className="flex-1 overflow-y-auto px-6 pb-6 space-y-4 custom-scrollbar">
+              <div className="flex items-center justify-between sticky top-0 bg-bg-light/30 backdrop-blur-sm py-3 z-10">
                 <div className="flex items-center gap-3 text-base font-bold text-text-primary">
                   <Activity size={18} className="text-text-secondary" />
                   <span>执行序列</span>
@@ -1092,7 +1103,11 @@ export default function App() {
                   const isDone = Math.floor((simProgress / 100) * sequence.length) > i;
                   
                   return (
-                    <div key={`${pid}-${i}`} className={`p-4 rounded-2xl border flex items-center gap-4 transition-all ${isActive ? 'bg-primary/5 border-primary/30 text-primary shadow-soft' : 'bg-white border-border-light text-text-secondary shadow-sm'}`}>
+                    <div 
+                      key={`${pid}-${i}`} 
+                      ref={isActive ? activeItemRef : null}
+                      className={`p-4 rounded-2xl border flex items-center gap-4 transition-all ${isActive ? 'bg-primary/5 border-primary/30 text-primary shadow-soft' : 'bg-white border-border-light text-text-secondary shadow-sm'}`}
+                    >
                       <div className="flex flex-col items-center gap-1">
                         <button 
                           onClick={() => moveSequenceItem(i, 'up')}
